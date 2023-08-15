@@ -1,19 +1,39 @@
 import { format } from "date-fns";
 import { AiFillDelete, AiFillEdit } from "react-icons/ai";
-import { deleteTodo, type TodoState } from "../redux/todoSlice";
+import { deleteTodo, updateTodo, type TodoState } from "../redux/todoSlice";
 import { useAppDispatch } from "../app/hooks";
 import { toast } from "react-hot-toast";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import TodoModal from "./TodoModal";
+import CheckButton from "./CheckButton";
+import { motion } from "framer-motion";
 
 interface TodoItemProps {
     todo: TodoState;
 }
 
+const child = {
+    hidden: { y: 20, opacity: 0 },
+    visible: {
+        y: 0,
+        opacity: 1,
+    },
+};
+
 function TodoItem({ todo }: TodoItemProps) {
     const { id, title, status, createAt } = todo;
     const [modalOpen, setModalOpen] = useState(false);
+    const [checked, setChecked] = useState(false);
     const dispatch = useAppDispatch();
+
+    useEffect(() => {
+        if (status === "complete") {
+            setChecked(true);
+        } else {
+            setChecked(false);
+        }
+    }, [status]);
+
     const handleDelete = () => {
         dispatch(deleteTodo(id));
         toast.success("Task Deleted Successfully");
@@ -23,11 +43,25 @@ function TodoItem({ todo }: TodoItemProps) {
         setModalOpen(true);
     };
 
+    const handleCheck = () => {
+        setChecked(!checked);
+        dispatch(
+            updateTodo({
+                id: id,
+                title,
+                status: checked ? "incomplete" : "complete",
+            }),
+        );
+    };
+
     return (
         <>
-            <div className="my-4 flex w-full justify-between bg-slate-300 p-2">
-                <div className="flex gap-2">
-                    [ ]
+            <motion.div
+                className="my-4 flex w-full justify-between bg-slate-300 p-2"
+                variants={child}
+            >
+                <div className="flex gap-4">
+                    <CheckButton checked={checked} handleCheck={handleCheck} />
                     <div>
                         <p
                             className={
@@ -53,7 +87,7 @@ function TodoItem({ todo }: TodoItemProps) {
                         <AiFillEdit />
                     </button>
                 </div>
-            </div>
+            </motion.div>
             <TodoModal
                 type="Update"
                 modalOpen={modalOpen}
