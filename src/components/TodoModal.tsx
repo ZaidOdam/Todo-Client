@@ -103,7 +103,7 @@ function TodoModal({
                     exit={{ opacity: 0 }}
                 >
                     <motion.div
-                        className="relative w-1/3"
+                        className="relative w-3/4 md:w-1/3"
                         variants={dropIn}
                         initial="hidden"
                         animate="visible"
